@@ -6,3 +6,4 @@ checkpoints/
 results/*.pt
 *.zip
 .ipynb_checkpoints/
+share/
