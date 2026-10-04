@@ -13,7 +13,11 @@ import numpy as np
 import pandas as pd
 import torch
 import yaml
+<<<<<<< HEAD
 from torch.utils.data import DataLoader
+=======
+from torch.utils.data import DataLoader, Subset
+>>>>>>> 22b6c38a9ee01defb5cb32f8bb62241742a7f15b
 from tqdm import tqdm
 
 from .data import OSVDataset
@@ -61,11 +65,25 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default="configs/default.yaml")
     ap.add_argument("--cell_column", default=None, help="override data.cell_column")
+<<<<<<< HEAD
+=======
+    ap.add_argument("--max_train", type=int, default=None, help="random train subset (smoke tests)")
+    ap.add_argument("--max_val", type=int, default=None, help="random val subset (smoke tests)")
+    ap.add_argument("--head_epochs", type=int, default=None)
+    ap.add_argument("--finetune_epochs", type=int, default=None)
+    ap.add_argument("--out_dir", default=None)
+>>>>>>> 22b6c38a9ee01defb5cb32f8bb62241742a7f15b
     args = ap.parse_args()
     cfg = yaml.safe_load(open(args.config))
     dc, tc = cfg["data"], cfg["train"]
     if args.cell_column:
         dc["cell_column"] = args.cell_column
+<<<<<<< HEAD
+=======
+    for k in ("head_epochs", "finetune_epochs", "out_dir"):
+        if getattr(args, k) is not None:
+            tc[k] = getattr(args, k)
+>>>>>>> 22b6c38a9ee01defb5cb32f8bb62241742a7f15b
     seed_all(tc["seed"])
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     amp = tc["amp"] and device.type == "cuda"
@@ -80,6 +98,12 @@ def main():
 
     def make_loader(csv, train):
         ds = OSVDataset(csv, dc["image_dir"], dc["cell_column"], cell_to_idx, train=train)
+<<<<<<< HEAD
+=======
+        limit = args.max_train if train else args.max_val
+        if limit and limit < len(ds):
+            ds = Subset(ds, torch.randperm(len(ds))[:limit].tolist())
+>>>>>>> 22b6c38a9ee01defb5cb32f8bb62241742a7f15b
         return DataLoader(ds, batch_size=tc["batch_size"], shuffle=train,
                           num_workers=dc["num_workers"], pin_memory=True,
                           persistent_workers=dc["num_workers"] > 0)

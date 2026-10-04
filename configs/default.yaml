@@ -3,10 +3,17 @@ data:
   val_csv: data/processed/val.csv
   test_csv: data/processed/test.csv
   image_dir: data/processed/images   # 224x224 resized images, <id>.jpg
+<<<<<<< HEAD
   cell_column: quadtree_10_1000   # only quadtree in the CSV; other granularities must be built (Owen)
   top_k_countries: 50
   val_frac: 0.1
   num_workers: 4
+=======
+  cell_column: cell_q500   # our quadtree: cell_q2500 (87 cells) / cell_q500 (407) / cell_q100 (1841)
+  top_k_countries: 50
+  val_frac: 0.1
+  num_workers: 2   # Windows: each worker is a full process; >2 hit paging-file limits
+>>>>>>> 22b6c38a9ee01defb5cb32f8bb62241742a7f15b
 
 model:
   backbone: resnet50

@@ -6,3 +6,7 @@ checkpoints/
 results/*.pt
 *.zip
 .ipynb_checkpoints/
+<<<<<<< HEAD
+=======
+share/
+>>>>>>> 22b6c38a9ee01defb5cb32f8bb62241742a7f15b
