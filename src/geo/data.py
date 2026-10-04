@@ -27,20 +27,18 @@ def get_transforms(train: bool):
 
 class OSVDataset(Dataset):
     def __init__(self, csv_path, image_dir, cell_column, cell_to_idx, train=False):
-        df = pd.read_csv(csv_path)
-        df = df[df[cell_column].astype(str).isin(cell_to_idx)].reset_index(drop=True)
-        self.df = df
+        df = pd.read_csv(csv_path, dtype={"id": str})
+        # Keep every row: eval must cover the whole split. Cells unseen in train get label -1
+        # (only distance metrics use them; never happens for the train split).
+        self.ids = df["id"].tolist()
+        self.labels = [cell_to_idx.get(str(c), -1) for c in df[cell_column]]
+        self.coords = torch.tensor(df[["latitude", "longitude"]].to_numpy(), dtype=torch.float32)
         self.image_dir = image_dir
-        self.cell_column = cell_column
-        self.cell_to_idx = cell_to_idx
         self.tf = get_transforms(train)
 
     def __len__(self):
-        return len(self.df)
+        return len(self.ids)
 
     def __getitem__(self, i):
-        r = self.df.iloc[i]
-        img = Image.open(os.path.join(self.image_dir, f"{r['id']}.jpg")).convert("RGB")
-        label = self.cell_to_idx[str(r[self.cell_column])]
-        coords = torch.tensor([r["latitude"], r["longitude"]], dtype=torch.float32)
-        return self.tf(img), label, coords
+        img = Image.open(os.path.join(self.image_dir, f"{self.ids[i]}.jpg")).convert("RGB")
+        return self.tf(img), self.labels[i], self.coords[i]
