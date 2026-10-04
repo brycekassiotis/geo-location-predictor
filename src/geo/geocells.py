@@ -1,23 +1,13 @@
-<<<<<<< HEAD
-"""Geocell utilities (owner: Owen).
-
-OSV-5M ships precomputed quadtree cell columns (quadtree_10_500, _2500, _25000).
-We map raw cell ids -> contiguous class indices and compute each cell's centroid
-(mean lat/lon of its *training* images) for distance-based prediction/loss.
-=======
 """Geocell utilities.
 
 OSV-5M's CSV only ships quadtree_10_1000, which is built for 4.8M images and far too fine for our
 subset. `build_quadtree` makes our own cells from TRAIN coordinates only (scripts/build_geocells.py
 writes them as cell_q<max> columns). `build_cell_index` maps raw cell ids -> contiguous class
 indices and computes each cell's centroid (mean lat/lon of its training images).
->>>>>>> 22b6c38a9ee01defb5cb32f8bb62241742a7f15b
 """
 import json
 import numpy as np
 import pandas as pd
-<<<<<<< HEAD
-=======
 from sklearn.neighbors import BallTree
 
 
@@ -66,7 +56,6 @@ def build_quadtree(train_lat, train_lon, query_lat, query_lon, max_per_cell, min
 
     remap = {c: i for i, c in enumerate(sorted(big.index))}
     return np.vectorize(remap.get)(t_cells), np.vectorize(remap.get)(q_cells)
->>>>>>> 22b6c38a9ee01defb5cb32f8bb62241742a7f15b
 
 
 def build_cell_index(train_df: pd.DataFrame, cell_column: str):
