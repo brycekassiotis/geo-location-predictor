@@ -20,6 +20,8 @@ train:
   finetune_lr: 1.0e-5
   weight_decay: 1.0e-4
   lambda_haversine: 0.1
+  label_smoothing: 0.0      # distance-aware smoothing (GeoLoss); try 0.05-0.2
+  smoothing_scale_km: 2000.0
   patience: 3           # early stopping on val GeoScore
   amp: true
   seed: 42

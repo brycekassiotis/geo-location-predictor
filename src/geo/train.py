@@ -6,6 +6,7 @@ AdamW, AMP, checkpointing, early stopping on val GeoScore.
     python -m src.geo.train --config configs/default.yaml
 """
 import argparse
+import json
 import os
 import random
 
@@ -63,22 +64,29 @@ def main():
     ap.add_argument("--cell_column", default=None, help="override data.cell_column")
     ap.add_argument("--max_train", type=int, default=None, help="random train subset (smoke tests)")
     ap.add_argument("--max_val", type=int, default=None, help="random val subset (smoke tests)")
-    ap.add_argument("--head_epochs", type=int, default=None)
-    ap.add_argument("--finetune_epochs", type=int, default=None)
-    ap.add_argument("--out_dir", default=None)
+    for k, t in (("head_epochs", int), ("finetune_epochs", int), ("head_lr", float),
+                 ("finetune_lr", float), ("lambda_haversine", float), ("label_smoothing", float),
+                 ("out_dir", str)):
+        ap.add_argument(f"--{k}", type=t, default=None, help="override train.<key>")
+    ap.add_argument("--run_dir", default=None, help="exact checkpoint dir (default out_dir/<cell_column>)")
+    ap.add_argument("--results_dir", default=None, help="history/preds/metrics dir (default run_dir)")
+    ap.add_argument("--no_preds", action="store_true", help="skip writing preds_val.csv")
     args = ap.parse_args()
     cfg = yaml.safe_load(open(args.config))
     dc, tc = cfg["data"], cfg["train"]
     if args.cell_column:
         dc["cell_column"] = args.cell_column
-    for k in ("head_epochs", "finetune_epochs", "out_dir"):
+    for k in ("head_epochs", "finetune_epochs", "head_lr", "finetune_lr", "lambda_haversine",
+              "label_smoothing", "out_dir"):
         if getattr(args, k) is not None:
             tc[k] = getattr(args, k)
     seed_all(tc["seed"])
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     amp = tc["amp"] and device.type == "cuda"
-    out_dir = os.path.join(tc["out_dir"], dc["cell_column"])
+    out_dir = args.run_dir or os.path.join(tc["out_dir"], dc["cell_column"])
+    results_dir = args.results_dir or out_dir
     os.makedirs(out_dir, exist_ok=True)
+    os.makedirs(results_dir, exist_ok=True)
 
     train_df = pd.read_csv(dc["train_csv"])
     cell_to_idx, centroids = build_cell_index(train_df, dc["cell_column"])
@@ -99,11 +107,13 @@ def main():
     val_loader = make_loader(dc["val_csv"], False)
 
     model = GeoModel(len(cell_to_idx), cfg["model"]["pretrained"]).to(device)
-    loss_fn = GeoLoss(centroids, lam=tc["lambda_haversine"]).to(device)
+    loss_fn = GeoLoss(centroids, lam=tc["lambda_haversine"],
+                      label_smoothing=tc.get("label_smoothing", 0.0),
+                      smoothing_scale_km=tc.get("smoothing_scale_km", 2000.0)).to(device)
     scaler = torch.amp.GradScaler(enabled=amp)
     best_path = os.path.join(out_dir, "best.pt")
 
-    best = -1.0
+    best, history = -1.0, []
     stages = [("head", True, tc["head_lr"], tc["head_epochs"]),
               ("finetune", False, tc["finetune_lr"], tc["finetune_epochs"])]
     for name, frozen, lr, epochs in stages:
@@ -115,6 +125,9 @@ def main():
             tr_loss = run_epoch(model, train_loader, loss_fn, opt, scaler, device, amp)
             m = evaluate(model, val_loader, centroids, device)
             print(f"[{name} {ep}] loss={tr_loss:.4f} " + " ".join(f"{k}={v:.3f}" for k, v in m.items()))
+            history.append({"stage": name, "epoch": ep, "train_loss": tr_loss, **m})
+            with open(os.path.join(results_dir, "history.json"), "w") as f:
+                json.dump(history, f, indent=1)
             ckpt = {"model": model.state_dict(), "metrics": m, "cfg": cfg, "stage": name, "epoch": ep}
             torch.save(ckpt, os.path.join(out_dir, "last.pt"))
             if m["geoscore"] > best:
@@ -128,6 +141,36 @@ def main():
         # roll back to best checkpoint before next stage / at end
         model.load_state_dict(torch.load(best_path, map_location=device)["model"])
     print(f"best val geoscore {best:.1f}")
+
+    best_ckpt = torch.load(best_path, map_location="cpu")
+    with open(os.path.join(results_dir, "metrics.json"), "w") as f:
+        json.dump({"best_val": best_ckpt["metrics"], "stage": best_ckpt["stage"],
+                   "epoch": best_ckpt["epoch"], "cell_column": dc["cell_column"],
+                   "num_cells": len(cell_to_idx), "max_train": args.max_train, "train": tc}, f, indent=1)
+    if not args.no_preds:  # full val split, README "Predictions file" format
+        val_ds = OSVDataset(dc["val_csv"], dc["image_dir"], dc["cell_column"], cell_to_idx, train=False)
+        loader = DataLoader(val_ds, batch_size=tc["batch_size"], num_workers=dc["num_workers"])
+        predict(model, loader, val_ds, centroids, device).to_csv(
+            os.path.join(results_dir, "preds_val.csv"), index=False)
+
+
+@torch.no_grad()
+def predict(model, loader, ds, centroids, device):
+    model.eval()
+    cells, confs = [], []
+    for x, _, _ in tqdm(loader, desc="predict", leave=False):
+        probs = torch.softmax(model(x.to(device, non_blocking=True)).float(), dim=1)
+        conf, cell = probs.max(1)
+        cells.append(cell.cpu().numpy()); confs.append(conf.cpu().numpy())
+    cells, confs = np.concatenate(cells), np.concatenate(confs)
+    true = ds.coords.numpy()
+    pred = centroids[cells]
+    return pd.DataFrame({
+        "id": ds.ids, "true_lat": true[:, 0], "true_lon": true[:, 1],
+        "pred_lat": pred[:, 0], "pred_lon": pred[:, 1],
+        "pred_cell": cells, "true_cell": ds.labels, "confidence": confs,
+        "dist_km": haversine_np(pred[:, 0], pred[:, 1], true[:, 0], true[:, 1]),
+    })
 
 
 if __name__ == "__main__":
