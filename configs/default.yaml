@@ -1,0 +1,26 @@
+data:
+  train_csv: data/processed/train.csv
+  val_csv: data/processed/val.csv
+  test_csv: data/processed/test.csv
+  image_dir: data/processed/images   # 224x224 resized images, <id>.jpg
+  cell_column: quadtree_10_1000   # only quadtree in the CSV; other granularities must be built (Owen)
+  top_k_countries: 50
+  val_frac: 0.1
+  num_workers: 4
+
+model:
+  backbone: resnet50
+  pretrained: true
+
+train:
+  batch_size: 64
+  head_epochs: 3        # stage 1: frozen backbone
+  finetune_epochs: 10   # stage 2: unfrozen
+  head_lr: 1.0e-3
+  finetune_lr: 1.0e-5
+  weight_decay: 1.0e-4
+  lambda_haversine: 0.1
+  patience: 3           # early stopping on val GeoScore
+  amp: true
+  seed: 42
+  out_dir: checkpoints
