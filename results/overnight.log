@@ -15,3 +15,13 @@
 [start] q500_main  10:09  --cell_column cell_q500 --finetune_lr 0.0001 --lambda_haversine 0.5
 [done] q500_main 79 min  val geoscore=3247 median=363 km
 [start] q500_smooth  11:28  --cell_column cell_q500 --label_smoothing 0.1 --finetune_lr 0.0001 --lambda_haversine 0.5
+[done] q500_smooth 74 min  val geoscore=3228 median=372 km
+[start] q2500  12:42  --cell_column cell_q2500 --finetune_lr 0.0001 --lambda_haversine 0.5
+[done] q2500 73 min  val geoscore=3033 median=498 km
+[start] q100  13:55  --cell_column cell_q100 --finetune_lr 0.0001 --lambda_haversine 0.5
+[done] q100 74 min  val geoscore=3097 median=464 km
+[start] lc_10k  15:10  --cell_column cell_q500 --max_train 10000 --finetune_lr 0.0001 --lambda_haversine 0.5
+[done] lc_10k 17 min  val geoscore=2379 median=998 km
+[start] lc_40k  15:26  --cell_column cell_q500 --max_train 40000 --finetune_lr 0.0001 --lambda_haversine 0.5
+[done] lc_40k 42 min  val geoscore=2937 median=536 km
+ALL DONE 16:09
