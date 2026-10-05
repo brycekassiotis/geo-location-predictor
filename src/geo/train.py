@@ -99,9 +99,11 @@ def main():
         limit = args.max_train if train else args.max_val
         if limit and limit < len(ds):
             ds = Subset(ds, torch.randperm(len(ds))[:limit].tolist())
+        # train loader keeps its workers alive; val uses <=2 short-lived workers to cap RAM on Windows
+        workers = dc["num_workers"] if train else min(2, dc["num_workers"])
         return DataLoader(ds, batch_size=tc["batch_size"], shuffle=train,
-                          num_workers=dc["num_workers"], pin_memory=True,
-                          persistent_workers=dc["num_workers"] > 0)
+                          num_workers=workers, pin_memory=True,
+                          persistent_workers=train and workers > 0)
 
     train_loader = make_loader(dc["train_csv"], True)
     val_loader = make_loader(dc["val_csv"], False)

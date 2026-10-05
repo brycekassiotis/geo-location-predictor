@@ -1,0 +1,17 @@
+[skip] sweep/lr1e-05_lam0 (done)
+[skip] sweep/lr1e-05_lam0.1 (done)
+[skip] sweep/lr1e-05_lam0.5 (done)
+[skip] sweep/lr3e-05_lam0 (done)
+[skip] sweep/lr3e-05_lam0.1 (done)
+[skip] sweep/lr3e-05_lam0.5 (done)
+[skip] sweep/lr0.0001_lam0 (done)
+[skip] sweep/lr0.0001_lam0.1 (done)
+[skip] sweep/lr0.0001_lam0.5 (done)
+[start] sweep/lr0.0003_lam0.5  09:52  --finetune_lr 0.0003 --lambda_haversine 0.5 --max_train 20000 --max_val 3000 --head_epochs 2 --finetune_epochs 3 --no_preds
+[done] sweep/lr0.0003_lam0.5 8 min  val geoscore=2470 median=888 km
+[start] sweep/lr0.001_lam0.5  10:00  --finetune_lr 0.001 --lambda_haversine 0.5 --max_train 20000 --max_val 3000 --head_epochs 2 --finetune_epochs 3 --no_preds
+[done] sweep/lr0.001_lam0.5 9 min  val geoscore=2289 median=1071 km
+[sweep best] finetune_lr=0.0001 lambda=0.5 geoscore=2567
+[start] q500_main  10:09  --cell_column cell_q500 --finetune_lr 0.0001 --lambda_haversine 0.5
+[done] q500_main 79 min  val geoscore=3247 median=363 km
+[start] q500_smooth  11:28  --cell_column cell_q500 --label_smoothing 0.1 --finetune_lr 0.0001 --lambda_haversine 0.5

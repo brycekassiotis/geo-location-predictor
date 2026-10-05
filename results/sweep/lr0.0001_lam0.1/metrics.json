@@ -1,0 +1,32 @@
+{
+ "best_val": {
+  "median_km": 834.8687744140625,
+  "mean_km": 2969.118408203125,
+  "geoscore": 2555.936279296875,
+  "acc@1km": 0.0,
+  "acc@25km": 0.018333333333333333,
+  "acc@200km": 0.22166666666666668,
+  "acc@750km": 0.47533333333333333,
+  "acc@2500km": 0.728
+ },
+ "stage": "finetune",
+ "epoch": 2,
+ "cell_column": "cell_q500",
+ "num_cells": 407,
+ "max_train": 20000,
+ "train": {
+  "batch_size": 64,
+  "head_epochs": 2,
+  "finetune_epochs": 3,
+  "head_lr": 0.001,
+  "finetune_lr": 0.0001,
+  "weight_decay": 0.0001,
+  "lambda_haversine": 0.1,
+  "label_smoothing": 0.0,
+  "smoothing_scale_km": 2000.0,
+  "patience": 3,
+  "amp": true,
+  "seed": 42,
+  "out_dir": "checkpoints"
+ }
+}

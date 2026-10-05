@@ -6,7 +6,7 @@ data:
   cell_column: cell_q500   # our quadtree: cell_q2500 (87 cells) / cell_q500 (407) / cell_q100 (1841)
   top_k_countries: 50
   val_frac: 0.1
-  num_workers: 2   # Windows: each worker is a full process; >2 hit paging-file limits
+  num_workers: 4   # train loader; val uses <=2. Data loading is the bottleneck (GPU ~28% at 2)
 
 model:
   backbone: resnet50

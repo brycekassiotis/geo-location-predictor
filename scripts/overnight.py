@@ -77,7 +77,8 @@ def main():
     rows = []
 
     # Phase 1: sweep
-    grid = list(itertools.product(SWEEP_LRS, SWEEP_LAMBDAS))
+    # 1e-4 won at the grid edge, so extend upward (lambda fixed at the winning 0.5)
+    grid = list(itertools.product(SWEEP_LRS, SWEEP_LAMBDAS)) + [(3e-4, 0.5), (1e-3, 0.5)]
     for lr, lam in (grid[:2] if a.smoke else grid):
         name = f"sweep/lr{lr:g}_lam{lam:g}"
         m = run(name, ["--finetune_lr", str(lr), "--lambda_haversine", str(lam),
