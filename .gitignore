@@ -2,7 +2,10 @@
 __pycache__/
 *.pyc
 data/
-checkpoints/
+checkpoints/*/*
+!checkpoints/*/cells.json
+!checkpoints/q500_main/best.pt
+smoke_overnight/
 results/*.pt
 *.zip
 .ipynb_checkpoints/
