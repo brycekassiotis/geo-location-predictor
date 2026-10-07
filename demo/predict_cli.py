@@ -1,8 +1,8 @@
 """
 Predicts where one photo was taken from the command line
 - python demo/predict_cli.py "C:/path/to/photo.jpg"
-- python demo/predict_cli.py photo.jpg --truth 48.8584,2.2945 (also prints km error + GeoScore)
-- python demo/predict_cli.py photo.jpg --save-crop ../crop.jpg (saves the 224x224 crop the model sees)
+- ... --truth 48.8584,2.2945 (also prints km error + GeoScore)
+- ... --save-crop ../crop.jpg (saves the 224x224 crop the model sees)
 """
 import argparse
 import time
