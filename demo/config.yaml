@@ -1,0 +1,7 @@
+# Folder relative to repo holding final model's best.pt and cells.json.
+checkpoint_dir: checkpoints/q500_main
+
+device: auto
+
+# How many of the "most likely" cells to report
+top_k: 5
