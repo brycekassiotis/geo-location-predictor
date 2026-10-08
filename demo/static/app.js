@@ -31,7 +31,7 @@ fileInput.addEventListener("change", () => {
 drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
 drop.addEventListener("dragleave", () => drop.classList.remove("over"));
 drop.addEventListener("drop", (e) => {
-  e.preventDefault(); 
+  e.preventDefault();
   drop.classList.remove("over");
   if (e.dataTransfer.files[0]) upload(e.dataTransfer.files[0]);
 });
@@ -80,8 +80,8 @@ function showResult(data, file) {
 
   state.guesses = data.top;
   const best = data.guess;
-  $("best").textContent =
-    `Best guess: ${best.lat.toFixed(2)}, ${best.lon.toFixed(2)} (${(100 * best.prob).toFixed(1)}%)`;
+  $("best").className = "big-top";
+  $("best").textContent = `Top guess: ${best.lat.toFixed(2)}, ${best.lon.toFixed(2)} (${(100 * best.prob).toFixed(1)}%)`;
 
   // Making one table row per guess: rank, coordinates, probability bar, percentage, and an empty cell for the distance (filled in later by renderScore)
   const tbody = $("top").querySelector("tbody");
@@ -165,13 +165,13 @@ function renderScore({ distance_km, geoscore }) {
   score.replaceChildren();
 
   const headline = document.createElement("div");
-  headline.className = "big";
-  headline.textContent = `${km(distance_km[0])} off · GeoScore ${Math.round(geoscore[0])} / 5000`;
+  headline.className = "big-top";
+  headline.textContent = `The model's top (#1) guess is ${km(distance_km[0])} off with a GeoScore of ${Math.round(geoscore[0])} / 5000`;
   score.appendChild(headline);
 
   if (closest !== 0) {
     const note = document.createElement("div");
-    note.textContent = `The nearest of the five guesses is #${closest + 1}, ${km(distance_km[closest])} from the truth.`;
+    note.textContent = `The closest of the five guesses is #${closest + 1}, ${km(distance_km[closest])} off with a GeoScore of ${Math.round(geoscore[closest])} / 5000.`;
     score.appendChild(note);
   }
 }

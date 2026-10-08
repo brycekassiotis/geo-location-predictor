@@ -7,7 +7,8 @@
 
   --color-accent:       #2ec4b6; /* primary: buttons, probability bars, highlights */
   --color-on-accent:    #0d1b2a; /* text drawn on top of the accent color */
-  --color-highlight:    #ff9f1c; /* secondary: the true location / the best-matching row */
+  --color-highlight:    #ff9f1c; /* secondary: the best-matching row */
+  --color-highlight-2:  #2ec4b6; /* secondary: the comparison between true location and model's top guess */
 
   --color-danger:       #ff6b6b; /* error messages */
   --color-warn:         #ffbf69; /* warning text */
@@ -51,11 +52,7 @@ h2 { font-size: 1.1rem; margin: 0 0 4px; }
 .error { color: var(--color-danger); }
 
 .warning {
-  margin: 8px 0;
-  padding: 8px 12px;
   color: var(--color-warn);
-  background: var(--color-warn-bg);
-  border-radius: 8px;
 }
 
 /* Photo and crop previews */
@@ -118,6 +115,7 @@ button:hover { filter: brightness(1.1); }
 
 #score { margin-top: 12px; }
 #score .big { color: var(--color-highlight); font-size: 1.2rem; font-weight: 600; }
+.big-top { color: var(--color-highlight-2); font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; }
 
 /* FOOTER */
 .footer { margin-top: 28px; color: var(--color-text-muted); font-size: 0.85rem; }

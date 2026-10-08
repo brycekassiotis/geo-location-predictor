@@ -107,8 +107,7 @@ def predict():
                         "so the guess is less reliable.")
     kept = min(w, h) / max(w, h)
     if kept < NARROW_WARN:
-        warnings.append(f"The model only sees the middle square of the photo (about {kept:.0%} of it); "
-                        "the rest is cut off.")
+        warnings.append(f"The model only sees the middle square of the photo (about {kept:.0%} of it).")
 
     # Run the model on the image
     t0 = time.time()
