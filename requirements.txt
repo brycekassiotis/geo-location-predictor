@@ -13,3 +13,4 @@ huggingface_hub
 grad-cam
 reverse_geocoder
 ipykernel
+flask
