@@ -13,7 +13,6 @@ from PIL import Image
 from predictor import Predictor, model_input_preview 
 from src.geo.metrics import geoscore, haversine_np
 
-
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("image")
@@ -27,12 +26,10 @@ def main():
     dev = pred.device.type
     gpu = f" ({torch.cuda.get_device_name(0)})" if dev == "cuda" else ""
     m = pred.meta["val_metrics"]
-    stored = (f"stored val: geoscore={m['geoscore']:.0f}, median={m['median_km']:.0f} km"
-              if "geoscore" in m else "no metrics stored")
+    stored = (f"stored val: geoscore={m['geoscore']:.0f}, median={m['median_km']:.0f} km" if "geoscore" in m else "no metrics stored")
     print(f"device: {dev}{gpu}")
     print(f"checkpoint: {pred.checkpoint_dir}")
-    print(f"  cells={pred.meta['num_cells']} cell_column={pred.meta['cell_column']} "
-          f"stage={pred.meta['stage']} epoch={pred.meta['epoch']}  {stored}")
+    print(f"  cells={pred.meta['num_cells']} cell_column={pred.meta['cell_column']} " f"stage={pred.meta['stage']} epoch={pred.meta['epoch']}  {stored}")
 
     img = Image.open(args.image)
     print(f"image: {args.image}  size={img.size} mode={img.mode}")
@@ -57,7 +54,6 @@ def main():
     if args.save_crop:
         model_input_preview(img).save(args.save_crop)
         print(f"saved the model's 224x224 input to {args.save_crop}")
-
 
 if __name__ == "__main__":
     main()

@@ -21,11 +21,9 @@ if str(REPO_ROOT) not in sys.path:
 from src.geo.data import get_transforms  # noqa: E402  (the team's eval transforms)
 from src.geo.model import GeoModel  # noqa: E402
 
-
 def load_config():
     with open(DEMO_DIR / "config.yaml") as f:
         return yaml.safe_load(f)
-
 
 # Turns any uploaded image into something the model can take
 # Any uploaded image -> plain RGB: honors phone rotation (EXIF) and flattens transparency.
@@ -40,11 +38,9 @@ def to_rgb(img):
     # Converts to RGB
     return img.convert("RGB")
 
-
 # Previews model input after resize/crop
 def model_input_preview(img):
     return T.CenterCrop(224)(T.Resize(224)(to_rgb(img)))
-
 
 # Predictor class
 # Loads model once (slow, ~seconds), then can call .predict(image) as many times (fast)
@@ -54,7 +50,7 @@ class Predictor:
         cfg = load_config()
         ckpt_dir = Path(checkpoint_dir or cfg["checkpoint_dir"])
         if not ckpt_dir.is_absolute():
-            ckpt_dir = REPO_ROOT / ckpt_dir  # config paths are relative to the repo root
+            ckpt_dir = REPO_ROOT / ckpt_dir
         dev = device or cfg.get("device", "auto")
         if dev == "auto":
             dev = "cuda" if torch.cuda.is_available() else "cpu"
@@ -67,25 +63,24 @@ class Predictor:
 
     # _load runs automatically when Predictor() is called
     def _load(self, ckpt_dir):
-        # 1. Both files must exist: best.pt (the learned weights) and cells.json (cell number -> lat/lon).
+        # Both files must exist: best.pt (the learned weights) and cells.json (cell number -> lat/lon).
         best_path, cells_path = ckpt_dir / "best.pt", ckpt_dir / "cells.json"
         for p in (best_path, cells_path):
             if not p.exists():
                 raise FileNotFoundError(f"Missing {p}. Run `git pull` to get the checkpoint Bryce committed "
                                         "(checkpoints/q500_main/), or fix checkpoint_dir in demo/config.yaml.")
 
-        # 2. The model outputs "cell number 213"; this table turns that into a latitude/longitude.
+        # Read the cell centroids (lat lon) from cells.json
         with open(cells_path) as f:
-            centroids = np.asarray(json.load(f)["centroids"], dtype=np.float32)  # [num_cells, 2] lat, lon
+            centroids = np.asarray(json.load(f)["centroids"], dtype=np.float32)
 
-        # 3. Read the checkpoint onto the CPU first (works with or without a GPU).
+        # Read the checkpoint (best weights) onto the CPU first
         try:
             ckpt = torch.load(best_path, map_location="cpu", weights_only=True)
         except Exception:
-            # best.pt is a trusted file from our own team; fall back if the safe loader rejects it
             ckpt = torch.load(best_path, map_location="cpu", weights_only=False)
 
-        # 4. Check that checkpoint and cells.json are compatible
+        # Check that checkpoint and cells.json are compatible
         state = ckpt["model"]
         if "head.1.weight" not in state:
             raise KeyError("best.pt has no 'head.1.weight'. Has the team's GeoModel changed "
@@ -95,7 +90,7 @@ class Predictor:
             raise ValueError(f"best.pt has {num_cells} cells but cells.json has {len(centroids)} centroids. "
                              "They must come from the same training run.")
 
-        # 5. Build the empty ResNet-50 + head with the team's own class, then fill in the trained weights.
+        # Build the empty ResNet-50 + head, fill in the trained weights.
         model = GeoModel(num_cells, pretrained=False)
         model.load_state_dict(state, strict=True) # loads weights 
         model.to(self.device).eval()

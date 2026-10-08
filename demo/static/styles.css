@@ -1,0 +1,123 @@
+:root {
+  --color-bg:           #0d1b2a; /* page background */
+  --color-surface:      #1b263b; /* raised areas: drop zone, bar tracks, inputs */
+  --color-border:       #5f7fa1; /* outlines and dividers */
+  --color-text:         #e0e1dd; /* main text */
+  --color-text-muted:   #98aac2; /* captions, hints, footer */
+
+  --color-accent:       #2ec4b6; /* primary: buttons, probability bars, highlights */
+  --color-on-accent:    #0d1b2a; /* text drawn on top of the accent color */
+  --color-highlight:    #ff9f1c; /* secondary: the true location / the best-matching row */
+
+  --color-danger:       #ff6b6b; /* error messages */
+  --color-warn:         #ffbf69; /* warning text */
+  --color-warn-bg:      #3a2f1e; /* warning background */
+
+  --radius: 10px;                  /* corner rounding shared by boxes and buttons */
+}
+
+/* PAGE LAYOOUT */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: 16px/1.5 system-ui, sans-serif;
+}
+
+main { max-width: 860px; margin: 0 auto; padding: 24px 16px 48px; }
+
+h1 { font-size: 1.6rem; margin: 0 0 4px; }
+h2 { font-size: 1.1rem; margin: 0 0 4px; }
+.subtitle { color: var(--color-text-muted); margin: 0 0 20px; }
+[hidden] { display: none !important; }
+
+/* UPLOAD BOX */
+#drop {
+  display: block;
+  padding: 36px 16px;
+  text-align: center;
+  cursor: pointer;
+  background: var(--color-surface);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius);
+}
+#drop.over { border-color: var(--color-accent); } 
+#drop small { color: var(--color-text-muted); }
+
+/* STATUS LINE AND MESSAGES */
+#status { margin: 16px 0; min-height: 1.5em; }
+.error { color: var(--color-danger); }
+
+.warning {
+  margin: 8px 0;
+  padding: 8px 12px;
+  color: var(--color-warn);
+  background: var(--color-warn-bg);
+  border-radius: 8px;
+}
+
+/* Photo and crop previews */
+.images { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 16px; margin: 16px 0; }
+.images figure { margin: 0; }
+.images img { display: block; background: var(--color-surface); border-radius: 8px; }
+
+#orig { max-width: 300px; max-height: 300px; }
+#crop { width: 224px; height: 224px; }
+
+figcaption { margin-top: 4px; color: var(--color-text-muted); font-size: 0.85rem; }
+
+/* GUESS LIST */
+.best { margin: 12px 0 4px; font-size: 1.2rem; }
+
+table { width: 100%; max-width: 640px; border-collapse: collapse; }
+th { text-align: left; color: var(--color-text-muted); font-size: 0.8rem; font-weight: 500; padding: 0 8px 4px 0; }
+td { padding: 4px 8px 4px 0; vertical-align: middle; }
+
+.bar { width: 140px; height: 10px; background: var(--color-surface); border-radius: 4px; }
+.bar > div { height: 100%; background: var(--color-accent); border-radius: 4px; }
+
+.dist-col { display: none; }
+table.has-truth .dist-col { display: table-cell; }
+tr.closest td { color: var(--color-highlight); font-weight: 600; }
+
+/* "CHECK YOUR GUESS" PANEL */
+#check {
+  margin-top: 24px;
+  padding: 16px;
+  background: var(--color-surface);
+  border-radius: var(--radius);
+}
+#check p { margin: 0 0 12px; color: var(--color-text-muted); font-size: 0.9rem; }
+
+#truth-form { display: flex; flex-wrap: wrap; gap: 8px; }
+
+#truth {
+  flex: 1 1 220px;
+  padding: 8px 12px;
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font: inherit;
+}
+#truth:focus { outline: 2px solid var(--color-accent); outline-offset: 1px; }
+
+button {
+  padding: 8px 18px;
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+  border: 0;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+button:hover { filter: brightness(1.1); }
+
+#score { margin-top: 12px; }
+#score .big { color: var(--color-highlight); font-size: 1.2rem; font-weight: 600; }
+
+/* FOOTER */
+.footer { margin-top: 28px; color: var(--color-text-muted); font-size: 0.85rem; }

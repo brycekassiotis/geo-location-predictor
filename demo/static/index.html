@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Where was this photo taken?</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+<main>
+  <h1>Where was this photo taken?</h1>
+  <p class="subtitle">Upload any photo. The model guesses a location from the pixels alone.</p>
+
+  <!-- Upload box -->
+  <label id="drop">
+    <input id="file" type="file" accept="image/*" hidden>
+    <strong>Drop a photo here, or click to choose one</strong><br>
+    <small>JPEG, PNG, etc. up to 20 MB</small>
+  </label>
+
+  <div id="status"></div>
+  <div id="warnings"></div>
+
+  <!-- Result section -->
+  <!-- Hidden until a prediction comes back -->
+  <div id="result" hidden>
+    <div class="images">
+      <figure>
+        <img id="orig" alt="Your photo">
+        <figcaption>Your photo</figcaption>
+      </figure>
+      <figure>
+        <img id="crop" alt="The 224 by 224 crop the model sees">
+        <figcaption>What the model sees (224&times;224 crop)</figcaption>
+      </figure>
+    </div>
+
+    <div class="best" id="best"></div>
+
+    <!-- 5 most likely locations -->
+    <table id="top">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Location (lat, lon)</th>
+          <th colspan="2">Probability</th>
+          <th class="dist-col">Distance to truth</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <!-- Check the guess -->
+    <section id="check">
+      <h2>Check the guess</h2>
+      <p>Know where this was taken? Enter the true location as latitude, longitude,
+         for example by pasting the coordinates from Google Maps. Negative numbers mean south or west.</p>
+      <form id="truth-form">
+        <input id="truth" type="text" placeholder="42.2778, -71.7585" autocomplete="off"
+               aria-label="True location as latitude, longitude">
+        <button type="submit">Check</button>
+      </form>
+      <div id="score"></div>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <p class="footer" id="footer"></p>
+</main>
+</body>
+</html>
