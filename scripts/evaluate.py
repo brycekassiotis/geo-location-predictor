@@ -130,7 +130,8 @@ def reverse_geocode_predictions(df):
     coords = list(zip(df["pred_lat"].astype(float), df["pred_lon"].astype(float)))
     if not coords:
         return df
-    hits = rg.search(coords, mode="batch")
+    hits = rg.search(coords, mode=1)
+
     df["pred_country"] = [h.get("cc", "") for h in hits]
     df["pred_region"] = [h.get("admin1", "") for h in hits]
     df["pred_city"] = [h.get("name", "") for h in hits]
